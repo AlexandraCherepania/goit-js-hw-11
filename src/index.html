@@ -1,14 +1,32 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page title</title>
-    <link rel="stylesheet" href="./sass/index.scss" />
-    <script type="module" src="./index.js"></script>
-  </head>
-  <body>
-    <!-- ❗️❗️❗️ Add partials like so for every page -->
-    <include src="./partials/example.html"></include>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Title page</title>
+  <link rel="stylesheet" href="./sass/index.scss" />
+  <script type="module" src="./index.js"></script>
+</head>
+
+<body class="background-image">
+
+  <div class="container">
+    <form class="search-form search-form-active" id="search-form">
+      <input class="search-form__input" type="text" name="searchQuery" autocomplete="off"
+        placeholder="Search images..." />
+      <button class="search-form__btn" type="submit">
+        <svg width="40" height="20">
+          <use href="./images/symbol-defs.svg#icon-search"></use>
+        </svg>
+      </button>
+    </form>
+
+    <div class="gallery">
+      <!-- Card  -->
+    </div>
+    <button type="button" class="load-more">Load more</button>
+  </div>
+</body>
+
 </html>
