@@ -21,7 +21,8 @@ body {
     left: 30%;
     transform: translate(0);
     z-index: 1;
-    padding-top: 10px;
+    // padding-top: 10px;
+    padding: 40px;
 
 }
 
@@ -102,4 +103,10 @@ body {
     border-radius: 8px;
     font-family: 'Montserrat';
     background-color: rgb(197, 217, 213);
+}
+
+.is-hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
