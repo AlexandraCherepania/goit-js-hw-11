@@ -1,115 +1,144 @@
-
-import './sass/index.scss';
-import axios from 'axios';
+const axios = require('axios').default;
 import Notiflix from 'notiflix';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
-const API_KEY = '31365930-c15782909a5a0e3024bcedf9d';
-const BASE_URL = 'https://pixabay.com/api/';
-const PER_PAGE = 40;
-let page = 1;
-let searchQuery = '';
-let gallery = '';
 
 const refs = {
-    searchForm: document.querySelector('.search-form'),
+    findImg: document.querySelector('#search-form'),
     gallery: document.querySelector('.gallery'),
-    loadMoreBtn: document.querySelector('.load-more'),
-};
+    submitBtn: document.querySelector('button[type=submit]'),
+    loadMore: document.querySelector('.load-more')
 
-refs.searchForm.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+}
+
+const inputRef = document.querySelector('input');
+
+let searchQuery = '';
+let page = 1;
+
+const hidden = document.querySelector('.load-more')
+hidden.classList.add('is-hidden')
+
+refs.findImg.addEventListener('submit', onSubmit)
+refs.loadMore.addEventListener('click', onLoadMore)
+
+
+function onSubmit(event) {
+
+    event.preventDefault();
+
+    searchQuery = event.currentTarget.elements.searchQuery.value.trim();
+
+    if (!searchQuery) {
+        refs.gallery.innerHTML = '';
+        hidden.classList.add('is-hidden')
+        Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
+        return;
+    }
+
+
+    resetPage()
 
 
 
-async function fetchImages(searchQuery, page) {
+    onSearchByName()
+        .then(pictures => {
+            clearPage();
+            renderPictures(pictures)
+            hidden.classList.remove('is-hidden')
+
+        })
+        .catch(error)
+}
+
+
+async function onSearchByName() {
     try {
-        const response = await axios.get(
-            `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&page=${page}&per_page=${PER_PAGE}&image_type=photo&orientation=horizontal&safesearch=true~`
-        );
-        return response.data;
+        const response = await axios.get(`https://pixabay.com/api/?key=32672755-e410867216a3d089c501c2971&q=${searchQuery}
+   &image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`);
+
+
+        return response
     } catch (error) {
-        console.error(error);
+        console.log("Ooooppsss I did it again");;
     }
 }
 
-function onSearch(event) {
-    event.preventDefault();
-    page = 1;
-    refs.gallery.innerHTML = '';
-    searchQuery = event.currentTarget.elements.searchQuery.value;
 
+function renderPictures(pictures) {
+    if (pictures.data.hits.length === 0) {
+        hidden.classList.add('is-hidden')
+        Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
 
+        return;
+    }
+    timer()
 
-    fetchImages(searchQuery, page)
-        .then(result => {
-            if (result.totalHits == 0) {
-                Notiflix.Notify.failure(
-                    'Sorry, there are no images matching your search query. Please try again.'
-                );
-                return;
-            }
-            renderMarkup(result.hits);
-            Notiflix.Notify.success(`Hooray! We found ${result.totalHits} images`);
-            gallery = new SimpleLightbox('.gallery a');
-            refs.loadMoreBtn.classList.remove('visually-hidden');
+    Notiflix.Notify.success(`Hooray! We found ${pictures.data.totalHits} images.`);
+
+    addPage()
+    const markup = pictures.data.hits
+        .map((picture) => {
+
+            return `<div class="photo-card">
+            <img src="${picture.webformatURL}" alt="${picture.tags}" width="360" height="240" loading="lazy" />
+            <div class="info">
+            <p class="info-item"> likes:
+            <b> ${picture.likes}</b>
+            </p>
+            <p class="info-item"> views: 
+             <b>${picture.views}</b>
+            </p>
+            <p class="info-item"> comments:
+              <b> ${picture.comments}</b>
+            </p>
+            <p class="info-item"> downloads:
+           <b> ${picture.downloads}</b>
+            </p>
+            </div>
+        </div>`;
+
         })
-        .catch(searchQuery => {
-            console.log(searchQuery);
-            Notiflix.Notify.failure(
-                'Sorry, there are no images matching your search query. Please try again.'
-            );
-        });
+        .join("");
+
+
+    refs.gallery.insertAdjacentHTML('beforeend', markup)
+
+
 }
 
-function onLoadMore(event) {
+
+function onLoadMore() {
+
+    hidden.classList.add('is-hidden')
+    onSearchByName()
+        .then(renderPictures)
+}
+
+
+
+
+function clearPage() {
+    refs.gallery.innerHTML = ''
+}
+
+
+function timer() {
+    const timerId = setTimeout(() => {
+
+        hidden.classList.remove('is-hidden')
+    }, 1000);
+}
+
+
+function error(error) {
+    Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+}
+
+
+function addPage() {
+
     page += 1;
-
-
-
-    fetchImages(searchQuery, page)
-        .then(result => {
-            if (page > result.totalHits / 40 + 1) {
-                Notiflix.Notify.failure(
-                    "We're sorry, but you've reached the end of search results."
-                );
-                refs.loadMoreBtn.classList.add('visually-hidden');
-
-                return;
-            }
-            renderMarkup(result.hits);
-            gallery.refresh();
-
-            smoothScroll();
-        })
-        .catch(error => console.log(error));
 }
 
-function renderMarkup(images) {
-    const newMarkup = images
-        .map(image => {
-            return ` <div class="photo-card">
- <a href="${image.largeImageURL}">
-  <img class="image" src="${image.largeImageURL}" alt="" loading="lazy" /></a>
-  <div class="info">
-    <p class="info-item">
-      <b>Likes</b></br>${image.likes}
-    </p>
-    <p class="info-item">
-      <b>Views</b></br>${image.views}
-    </p>
-    <p class="info-item">
-      <b>Comments</b></br>${image.comments}
-    </p>
-    <p class="info-item">
-      <b>Downloads</b></br>${image.downloads}
-    </p>
-  </div>
-  
-</div>`;
-        })
-        .join('');
-    refs.gallery.insertAdjacentHTML('beforeend', newMarkup);
+function resetPage() {
+    page = 1;
 }
-
