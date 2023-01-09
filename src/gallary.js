@@ -35,12 +35,13 @@ function onSubmit(event) {
 
     resetPage()
 
-    hidden.classList.remove('is-hidden')
+
 
     onSearchByName()
         .then(pictures => {
             clearPage();
             renderPictures(pictures)
+            hidden.classList.remove('is-hidden')
 
         })
         .catch(error)
@@ -56,6 +57,7 @@ async function onSearchByName() {
         console.log("Ooooppsss I did it again");
     }
 }
+
 
 
 function renderPictures(pictures) {
@@ -79,7 +81,7 @@ function renderPictures(pictures) {
             <p class="info-item"> likes:
             <b> ${picture.likes}</b>
             </p>
-            <p class="info-item"> views: 
+            <p class="info-item"> views:
              <b>${picture.views}</b>
             </p>
             <p class="info-item"> comments:
@@ -106,6 +108,9 @@ function onLoadMore() {
     hidden.classList.add('is-hidden')
     onSearchByName()
         .then(renderPictures)
+
+
+
 }
 
 
