@@ -22,8 +22,6 @@ refs.searchForm.addEventListener('submit', onSearch);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
 
 
-// const hidden = document.querySelector('.load-more')
-// hidden.classList.add('is-hidden')
 
 async function fetchImages(searchQuery, page) {
     try {
@@ -42,7 +40,6 @@ function onSearch(event) {
     refs.gallery.innerHTML = '';
     searchQuery = event.currentTarget.elements.searchQuery.value;
 
-    // hidden.classList.remove('is-hidden')
 
 
     fetchImages(searchQuery, page)
